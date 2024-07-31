@@ -1,6 +1,8 @@
 import { Podcast } from "../models/podcast.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import fs from "fs";
+import path from 'path';
 
 const listPodcasts = asyncHandler(async (req, res) => {
     const podcasts = await Podcast.find({}).populate("createdBy", "fullName email");
@@ -52,17 +54,27 @@ const createPodcast = asyncHandler(async (req, res) => {
 });
 
 const editPodcast = asyncHandler(async (req, res) => {
-    const { _id, title, description, File } = req.body;
+    const { title, description } = req.body;
+    const File = req.files.Podcast[0].path;
 
-    const podcast = await Podcast.findByIdAndUpdate(_id, {
+    // const oldFile = await Podcast.findById(req.params.id);
+    const podcast = await Podcast.findByIdAndUpdate(req.params.id, {
         title,
         description,
         File
-    }, { new: true });
+    });
 
     if (!podcast) {
         throw new ApiError(500, "Something went wrong while editing the podcast");
+        return;
     }
+
+     // Delete the file
+    fs.unlink(podcast.File, (err) => {
+        if (err) {
+            console.error(`Failed to delete file: ${err.message}`);
+        }
+    });
 
     res.status(200).json({
         message: "Podcast edited successfully",
@@ -76,6 +88,15 @@ const deletePodcast = asyncHandler(async (req, res) => {
     if (!podcast) {
         throw new ApiError(404, "Podcast not found");
     }
+    
+    console.log(podcast.File+" deleting");
+
+    // Delete the file
+    fs.unlink(podcast.File, (err) => {
+        if (err) {
+            console.error(`Failed to delete file: ${err.message}`);
+        }
+    });
 
     res.status(200).json({
         message: "Podcast deleted successfully",
