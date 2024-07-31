@@ -1,6 +1,7 @@
 import { Blog } from "../models/blog.model.js";
 import { ApiError } from "../utils/apiError.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
+import fs from "fs";
 
 const listBlogs = asyncHandler(async (req, res) => {
 
@@ -33,8 +34,10 @@ const listBlogById = asyncHandler(async (req, res) => {
 })
 
 const createBlog = asyncHandler(async (req, res) => {
+    const { title, content, createdBy } = req.body;
 
-    const { title, content, createdBy, poster } = req.body;
+    const poster = req.files.poster[0].path;
+    console.log(poster);
 
     const blog = await Blog.create({
         title, 
@@ -43,25 +46,22 @@ const createBlog = asyncHandler(async (req, res) => {
         poster
     })
 
-    const createdBlog = await Blog.findById(blog._id);
-    console.log(createdBlog);
-
-
-    if (!createdBlog) {
+    if (!blog) {
         throw new ApiError(500, "Something went wrong while registering the user");
     }
 
     res.status(201).json({
         message: "Blog created successfully",
-        blog: createdBlog
+        blog: blog
     })
 })
 
 const editBlog = asyncHandler(async (req, res) => {
     
-    const {_id, title, content, poster} = req.body;
+    const {title, content} = req.body;
+    const poster = req.files.poster[0].path;
 
-    const blog = await Blog.findByIdAndUpdate(_id, {
+    const blog = await Blog.findByIdAndUpdate(req.params.id, {
         title: title, 
         content: content, 
         poster: poster
@@ -70,6 +70,13 @@ const editBlog = asyncHandler(async (req, res) => {
     if (!blog) {
         throw new ApiError(500, "Something went wrong")
     }
+
+     // Delete the file
+     fs.unlink(blog.poster, (err) => {
+        if (err) {
+            console.error(`Failed to delete file: ${err.message}`);
+        }
+    });
 
     res.status(201).json({
         message: "Blog edited successfully",
@@ -84,6 +91,15 @@ const deleteBlog = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Blog not found");
     }
 
+    console.log(blog.poster+" deleting");
+
+    // Delete the file
+    fs.unlink(blog.poster, (err) => {
+        if (err) {
+            console.error(`Failed to delete file: ${err.message}`);
+        }
+    });
+
     res.status(200).json({
         message: "Blog deleted successfully",
     })
@@ -96,3 +112,5 @@ export {
     editBlog,
     deleteBlog
 }
+
+// TODO: Implement poster uploading through multer
