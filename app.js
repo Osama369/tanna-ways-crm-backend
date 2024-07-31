@@ -8,13 +8,19 @@ app.use(cors({
     credentials: true
 }))
 
-app.use(express.json({limit: "16kb"}))
-app.use(express.urlencoded({extended: true, limit: "16kb"}))
-app.use(express.static("public"))
+app.use(express.json({limit: "16mb"}))
+app.use(express.urlencoded({extended: true, limit: "16mb"}))
+app.use('/public', express.static('public'));
 
-import userRouter from "./routes/user.routes.js"
+import userRouter from "./routes/user.routes.js";
+import blogRouter from "./routes/blog.routes.js";
+import podcastRouter from "./routes/podcast.routes.js";
+import contactRouter from "./routes/contact.routes.js";
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/blogs", blogRouter);
+app.use("/api/v1/podcasts", podcastRouter);
+app.use("/api/v1/contacts", contactRouter);
 // https://localhost:3000/api/v1/users/register
 
 
