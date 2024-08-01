@@ -61,7 +61,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Wrong password");
     }
 
-    // const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+    const { accessToken } = await generateAccessAndRefreshToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password");
 
@@ -80,17 +80,17 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
-    await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: {
-                accessToken: undefined
-            }
-        },
-        {
-            new: true,
-        }
-    )
+    // await User.findByIdAndUpdate(
+    //     req.user._id,
+    //     {
+    //         $set: {
+    //             accessToken: undefined
+    //         }
+    //     },
+    //     {
+    //         new: true,
+    //     }
+    // )
 
     const options = {
         httpOnly: true,
@@ -102,6 +102,22 @@ const logoutUser = asyncHandler(async (req, res) => {
         message: "User logged out successfully"
     })
 })
+
+const generateAccessAndRefreshToken = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        // const refreshToken = user.generateRefreshToken();
+
+        // user.refreshToken = refreshToken;
+        // await user.save({ validateBeforeSave: false });
+
+        return { accessToken }
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating the tokens");
+    }
+}
 
 export {
     registerUser,
