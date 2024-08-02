@@ -7,6 +7,6 @@ userRouter.route("/register").post(registerUser);
 
 userRouter.route("/login").post(loginUser);
 
-userRouter.route("/logout").post(VerifyJWT, logoutUser);
+userRouter.route("/logout").post(logoutUser);
 
 export default userRouter;
