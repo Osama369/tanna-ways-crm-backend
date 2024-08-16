@@ -12,11 +12,11 @@ const subscribe = async (req, res) => {
     status: 'subscribed'
   };
 
-  const url = `https://us17.api.mailchimp.com/3.0/lists/5d232aff7f/members`;
+  const url = `https://us17.api.mailchimp.com/3.0/lists/61464449f9/members`;
 
   const options = {
     headers: {
-      'Authorization': `apikey 54f7c41ead1dd138304d7359cbaf071d-us17`,
+      'Authorization': `apikey 5c879115819e97e8b2c5394306cd3c25-us17`,
       'Content-Type': 'application/json'
     }
   };
@@ -34,4 +34,7 @@ const subscribe = async (req, res) => {
   }
 }
 
-export { subscribe }
+export { subscribe }  // export the subscriber router here 
+
+
+// getsubscriber controller here
